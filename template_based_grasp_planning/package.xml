@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package>
+  <name>template_based_grasp_planning</name>
+  <version>0.0.0</version>
+  <description>The template_based_grasp_planning package</description>
+
+  <maintainer email="furushchev@jsk.imi.i.u-tokyo.ac.jp">Yuki Furuta</maintainer>
+
+  <license>BSD</license>
+
+  <author email="furushchev@jsk.imi.i.u-tokyo.ac.jp">Yuki Furuta</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>
