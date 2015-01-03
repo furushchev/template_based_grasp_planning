@@ -69,6 +69,7 @@
 
 #include <pcl_ros/transforms.h>
 #include <pcl_ros/point_cloud.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include "tabletop_segmenter/marker_generator.h"
 #include "tabletop_segmenter/utilities.h"
@@ -78,7 +79,7 @@
 #include <opencv/cv.h>
 #include <image_geometry/pinhole_camera_model.h>
 #include <boost/foreach.hpp>
-#include <usc_utilities/assert.h>
+#include "tabletop_segmenter/assert.h"
 
 float getRGB( float r, float g, float b){
   union{ int intp; float floatp; } a;
@@ -496,12 +497,12 @@ tf::Transform getPlaneTransform (pcl::ModelCoefficients coeffs, double up_direct
   ROS_ASSERT(coeffs.values.size() > 3);
   double a = coeffs.values[0], b = coeffs.values[1], c = coeffs.values[2], d = coeffs.values[3];
   //asume plane coefficients are normalized
-  btVector3 position(-a*d, -b*d, -c*d);
-  btVector3 z(a, b, c);
+  tf::Vector3 position(-a*d, -b*d, -c*d);
+  tf::Vector3 z(a, b, c);
   //make sure z points "up"
-  ROS_DEBUG("z.dot: %0.3f", z.dot(btVector3(0,0,1)));
+  ROS_DEBUG("z.dot: %0.3f", z.dot(tf::Vector3(0,0,1)));
   ROS_DEBUG("in getPlaneTransform, z: %0.3f, %0.3f, %0.3f", z[0], z[1], z[2]);
-  if ( z.dot( btVector3(0, 0, up_direction) ) < 0)
+  if ( z.dot( tf::Vector3(0, 0, up_direction) ) < 0)
   {
     z = -1.0 * z;
     ROS_INFO("flipped z");
@@ -510,17 +511,17 @@ tf::Transform getPlaneTransform (pcl::ModelCoefficients coeffs, double up_direct
 
   //try to align the x axis with the x axis of the original frame
   //or the y axis if z and x are too close too each other
-  btVector3 x(1, 0, 0);
-  if ( fabs(z.dot(x)) > 1.0 - 1.0e-4) x = btVector3(0, 1, 0);
-  btVector3 y = z.cross(x).normalized();
+  tf::Vector3 x(1, 0, 0);
+  if ( fabs(z.dot(x)) > 1.0 - 1.0e-4) x = tf::Vector3(0, 1, 0);
+  tf::Vector3 y = z.cross(x).normalized();
   x = y.cross(z).normalized();
 
-  btMatrix3x3 rotation;
+  tf::Matrix3x3 rotation;
   rotation[0] = x; 	// x
   rotation[1] = y; 	// y
   rotation[2] = z; 	// z
   rotation = rotation.transpose();
-  btQuaternion orientation;
+  tf::Quaternion orientation;
   rotation.getRotation(orientation);
   return tf::Transform(orientation, position);
 }
@@ -531,7 +532,7 @@ bool getPlanePoints (const pcl::PointCloud<PointT> &table,
 		     sensor_msgs::PointCloud &table_points)
 {
   // Prepare the output
-  table_points.header = table.header;
+  table_points.header = pcl_conversions::fromPCL(table.header);
   table_points.points.resize (table.points.size ());
   for (size_t i = 0; i < table.points.size (); ++i)
   {
@@ -542,7 +543,8 @@ bool getPlanePoints (const pcl::PointCloud<PointT> &table,
 
   // Transform the data
   tf::TransformListener listener;
-  tf::StampedTransform table_pose_frame(table_plane_trans, table.header.stamp, 
+  std_msgs::Header ros_header = pcl_conversions::fromPCL(table.header);
+  tf::StampedTransform table_pose_frame(table_plane_trans, ros_header.stamp, 
                                         table.header.frame_id, "table_frame");
   listener.setTransform(table_pose_frame);
   std::string error_msg;
@@ -565,7 +567,8 @@ bool getPlanePoints (const pcl::PointCloud<PointT> &table,
 	      table_points.header.frame_id.c_str(), ex.what());
     return false;
   }
-  table_points.header.stamp = table.header.stamp;
+  std_msgs::Header header = pcl_conversions::fromPCL(table.header);
+  table_points.header.stamp = header.stamp;
   table_points.header.frame_id = "table_frame";
   return true;
 }
@@ -996,8 +999,7 @@ bool TabletopSegmentor::mergeCloud( const sensor_msgs::PointCloud2::ConstPtr &ro
 	continue;
       
       cv::Point3d pt_cv(pt.x, pt.y, pt.z);
-      cv::Point2d uv;
-      cam_model.project3dToPixel(pt_cv, uv);
+      cv::Point2d uv = cam_model.project3dToPixel(pt_cv);
       uv.x = std::floor(uv.x);
       uv.y = std::floor(uv.y);
       if( uv.x>0 && uv.x < cam_info->width &&  
