@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<package>
+  <name>grasp_template</name>
+  <version>0.0.0</version>
+  <description>The grasp_template package</description>
+
+  <maintainer email="leus@todo.todo">leus</maintainer>
+
+  <license>BSD</license>
+  <!-- <author email="jane.doe@example.com">Jane Doe</author> -->
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>pcl_ros</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
+
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>pcl_ros</run_depend>
+  <run_depend>roscpp</run_depend>
+  <run_depend>sensor_msgs</run_depend>
+  <run_depend>tf</run_depend>
+  <run_depend>visualization_msgs</run_depend>
+  <run_depend>message_runtime</run_depend>
+
+  <export>
+    <cpp cflags="`pkg-config --cflags eigen3` -I${prefix}/include" lflags="-Wl,-rpath,${prefix}/lib -L${prefix}/lib -lgrasp_template"/>
+  </export>
+</package>

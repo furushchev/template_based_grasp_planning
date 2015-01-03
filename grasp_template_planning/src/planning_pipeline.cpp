@@ -20,6 +20,7 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/io/io.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <grasp_template/dismatch_measure.h>
 #include <grasp_template_planning/demonstration_parser.h>
 #include <grasp_template_planning/object_detection_listener.h>

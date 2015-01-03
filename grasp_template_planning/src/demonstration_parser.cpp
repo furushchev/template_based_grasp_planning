@@ -24,6 +24,7 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 #include <pcl/io/io.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <Eigen/Eigen>
 #include <grasp_template/heightmap_sampling.h>
 #include <grasp_template_planning/grasp_demo_library.h>

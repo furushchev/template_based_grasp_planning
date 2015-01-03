@@ -15,6 +15,7 @@
 #ifndef IMAGELISTENER_H_
 #define IMAGELISTENER_H_
 
+#include <ros/node_handle.h>
 #include <sensor_msgs/Image.h>
 #include <rosbag/bag.h>
 #include <boost/thread.hpp>

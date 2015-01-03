@@ -17,6 +17,7 @@
 #include <image_geometry/pinhole_camera_model.h>
 #include <pcl/io/io.h>
 #include <pcl_ros/transforms.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <grasp_template_planning/object_detection_listener.h>
 #include <grasp_template/grasp_template_params.h>
 #include <grasp_template_planning/grasp_planning_params.h>
@@ -197,11 +198,14 @@ bool ObjectDetectionListener::fetchClusterFromObjectDetector()
     		base_to_clusterworld.getRotation().getZ());
 
     pcl::transformPointCloud(object_cluster_viewframe_nocol, object_cluster_, trans_o, trans_r);
-    object_cluster_.header.stamp = ros::Time::now();
+    std_msgs::Header ros_header;
+    ros_header.stamp = ros::Time::now();
+    object_cluster_.header.stamp = pcl_conversions::toPCL(ros_header).stamp;
     object_cluster_.header.frame_id = params.frameBase();
 
     pcl::transformPointCloud(object_cluster_viewframe, object_cluster_colored_, trans_o, trans_r);
-    object_cluster_colored_.header.stamp = ros::Time::now();
+    ros_header.stamp = ros::Time::now();
+    object_cluster_colored_.header.stamp = pcl_conversions::toPCL(ros_header).stamp;
     object_cluster_colored_.header.frame_id = params.frameBase();
 
 

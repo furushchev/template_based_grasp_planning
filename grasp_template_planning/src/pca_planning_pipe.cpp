@@ -17,6 +17,7 @@
 #include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <Eigen/Eigen>
 #include <pcl/common/pca.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 #include <grasp_template_planning/pca_grasp_container.h>
 #include <grasp_template_planning/pca_planning_pipe.h>

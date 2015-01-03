@@ -15,7 +15,9 @@
 #include <cassert>
 #include <Eigen/Eigen>
 
+#include <boost/shared_ptr.hpp>
 #include <pcl/Vertices.h>
+#include <pcl_conversions/pcl_conversions.h>
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
 #include <sensor_msgs/ChannelFloat32.h>
