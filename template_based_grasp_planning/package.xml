@@ -11,6 +11,7 @@
   <author email="furushchev@jsk.imi.i.u-tokyo.ac.jp">Yuki Furuta</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+  <run_depend>pr2_template_based_grasping</run_depend>
 
   <export>
     <metapackage/>
