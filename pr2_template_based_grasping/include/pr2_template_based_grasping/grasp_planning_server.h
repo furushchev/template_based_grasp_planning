@@ -32,6 +32,7 @@
 #include <pr2_template_based_grasping/PlanningSummary.h>
 #include <pr2_template_based_grasping/interactive_candidate_filter.h>
 #include <grasp_template_planning/image_listener.h>
+#include <grasp_template_planning/TabletopObject.h>
 
 namespace pr2_template_based_grasping
 {
@@ -65,7 +66,7 @@ private:
   ros::Publisher attempt_pub_;
   geometry_msgs::Pose table_frame_;
   sensor_msgs::PointCloud2 target_cloud_;
-  grasp_template_planning::ObjectDetectionListener object_detection_;
+  ros::ServiceClient tabletop_srv_client_;
   ros::ServiceServer planning_service_;
   ros::ServiceServer vis_service_;
   ros::ServiceServer planning_feedback_service_;

@@ -39,7 +39,6 @@ GraspPlanningServer::GraspPlanningServer(ros::NodeHandle& nh, const string& demo
   nh_(nh), planning_pipe_(demo_path, lib_path, failure_path, success_path, log_data_path), visualizer_(false),
       attempt_pub_(nh.advertise<PoseStamped> ("grasp_attempt_viz", 5))
 {
-  object_detection_.connectToObjectDetector(nh_);
   visualizer_.initialize(nh_);
   visualizer_.startPublishing();
 
@@ -54,6 +53,12 @@ GraspPlanningServer::GraspPlanningServer(ros::NodeHandle& nh, const string& demo
   planning_summary_service_ = nh_.advertiseService("pr2_template_grasp_planner_logging", &GraspPlanningServer::getLog,
                                                    this);
   ROS_INFO("Template grasp planner logging service is up.");
+
+  tabletop_srv_client_ = nh_.serviceClient<grasp_template_planning::TabletopObject>("tabletop_object_detection");
+  ROS_INFO_STREAM("waiting service advatise " << tabletop_srv_client_.getService());
+  tabletop_srv_client_.waitForExistence();
+  ROS_INFO_STREAM("service " << tabletop_srv_client_.getService() << " is now available");
+
 }
 
 bool GraspPlanningServer::plan(object_manipulation_msgs::GraspPlanning::Request &req,
@@ -62,21 +67,22 @@ bool GraspPlanningServer::plan(object_manipulation_msgs::GraspPlanning::Request 
   ros::Time t_start = ros::Time::now();
   boost::mutex::scoped_lock lock(mutex_);
 
-  ObjectDetectionListener object_detection;
-  object_detection.connectToObjectDetector(nh_);
-  if (!object_detection.fetchClusterFromObjectDetector())
-  {
-    ROS_ERROR("Grasp planner could not obtain table pose.");
+  if (req.target.cluster.points.size() == 0 || req.target.region.roi_box_pose.pose.orientation.x == 0.0) {
+    grasp_template_planning::TabletopObject srv;
+    if(!tabletop_srv_client_.call(srv)){
+      ROS_ERROR_STREAM("failed to call service " << tabletop_srv_client_.getService());
+      return 1;
+    } else {
+      target_cloud_ = srv.response.target_cloud;
+      table_frame_ = srv.response.table_pose.pose;
+    }
   }
-  table_frame_ = object_detection.getTableFrame().pose;
 
-  if (!object_detection_.fetchClusterFromObjectDetector())
-  {
+  if (req.target.cluster.points.size() > 0) {
     sensor_msgs::convertPointCloudToPointCloud2(req.target.cluster, target_cloud_);
   }
-  else
-  {
-    object_detection_.getClusterPC2Colored(target_cloud_);
+  if (req.target.region.roi_box_pose.pose.orientation.x != 0.0) {
+    table_frame_ = req.target.region.roi_box_pose.pose;
   }
   Pose table = table_frame_;
   planning_pipe_.initialize(target_cloud_, table);

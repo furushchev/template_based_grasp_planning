@@ -19,6 +19,7 @@
 #include <tf/transform_broadcaster.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <sensor_msgs/JointState.h>
+#include <grasp_template_planning/TabletopObject.h>
 #include <grasp_template_planning/SimpleLabel.h>
 #include <grasp_template_planning/object_detection_listener.h>
 #include <grasp_template/grasp_template_params.h>
@@ -68,6 +69,11 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "user_demonstration_recorder");
   ros::NodeHandle n;
 
+  ros::ServiceClient tabletop_srv_client = n.serviceClient<grasp_template_planning::TabletopObject>("tabletop_object_detection");
+  ROS_INFO_STREAM("waiting service advatise " << tabletop_srv_client.getService());
+  tabletop_srv_client.waitForExistence();
+  ROS_INFO_STREAM("service " << tabletop_srv_client.getService() << " is now available");
+
 //  ROS_WARN_STREAM("ITS: " << ros::Time::now());
   char input = 'p';
   ROS_INFO("Note: Only demonstrations with the right arm are recorded.");
@@ -79,6 +85,17 @@ int main(int argc, char** argv)
   /* obtain object cluster and table pose */
   sensor_msgs::PointCloud2 cluster;
   geometry_msgs::PoseStamped table_pose;
+
+  grasp_template_planning::TabletopObject srv;
+  if(!tabletop_srv_client.call(srv)){
+    ROS_ERROR_STREAM("failed to call service " << tabletop_srv_client.getService());
+    return 1;
+  } else {
+    cluster = srv.response.target_cloud;
+    table_pose = srv.response.table_pose;
+  }
+
+  /*
   {
     ObjectDetectionListener object_detection;
     object_detection.connectToObjectDetector(n);
@@ -90,6 +107,7 @@ int main(int argc, char** argv)
     object_detection.getClusterPC2(cluster);
     table_pose = object_detection.getTableFrame();
   }
+  */
 
   /* obtain viewpoint */
   geometry_msgs::PoseStamped viewpoint_pose;

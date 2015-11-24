@@ -41,12 +41,17 @@ add_message_files(
   SimpleLabel.msg
 )
 
+add_service_files(
+  FILES
+  TabletopObject.srv
+  )
+
 generate_messages(
   DEPENDENCIES
-  std_msgs
   geometry_msgs
-  sensor_msgs
   grasp_template
+  sensor_msgs
+  std_msgs
 )
 
 catkin_package(
