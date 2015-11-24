@@ -1,37 +1,44 @@
 <launch>
   <arg name="debug" default="false" />
-  
-  <arg name="grasp_library_file" value="$(find grasp_template_planning)/data/grasp_library.bag" /> 
+
+  <arg name="grasp_library_file" value="$(find grasp_template_planning)/data/grasp_library.bag" />
   <arg name="grasp_demonstrations_path" value="$(find grasp_template_planning)/data/grasp_demonstrations_data/" />
   <arg name="library_negatives" value="$(find grasp_template_planning)/data/library_negatives/" />
   <arg name="library_positives" value="$(find grasp_template_planning)/data/library_positives/" />
   <arg name="log_data" value="$(find grasp_template_planning)/data/log_data/" />
-	
+
+  <arg name="camera" default="camera" />
+  <arg name="camera_rgb" default="rgb" />
+  <arg name="camera_depth" default="depth" />
+  <arg name="base_frame" default="camera_depth_optical_frame" />
+
+  <node name="base_static_transformer" pkg="tf" type="static_transform_publisher"
+        args="0 0 0 0 0 0 /$(arg base_frame) /BASE 100" />
+
   <include file="$(find tabletop_segmenter)/launch/tabletop_segmenter.launch">
-	<arg name="tabletop_segmentation_points_in" value="/camera/depth/points" />
-    <arg name="tabletop_segmentation_depth_in" value="/camera/depth/image_raw" />
-    <arg name="tabletop_segmentation_rgb_in" value="/camera/rgb/image_color" />
-    <arg name="tabletop_segmentation_cam_info" value="/camera/depth/camera_info" />
-	<arg name="tabletop_segmentation_srv" value="template_tabletop_segmentation"/>
-	<arg name="tabletop_segmentation_markers" value="template_tabletop_segmentation_markers"/>
+    <arg name="tabletop_segmentation_points_in" value="/$(arg camera)/$(arg camera_depth)/points" />
+    <arg name="tabletop_segmentation_depth_in" value="/$(arg camera)/depth/image_raw" />
+    <arg name="tabletop_segmentation_rgb_in" value="/$(arg camera)/$(arg camera_rgb)/image_color" />
+    <arg name="tabletop_segmentation_cam_info" value="/$(arg camera)/depth/camera_info" />
+    <arg name="tabletop_segmentation_srv" value="template_tabletop_segmentation"/>
+    <arg name="tabletop_segmentation_markers" value="template_tabletop_segmentation_markers"/>
   </include>
-    
+
   <group if="$(arg debug)">
-    <node launch-prefix="xterm -e gdb --args" name="template_grasp_planning_server" pkg="pr2_template_based_grasping" 
+    <node launch-prefix="xterm -e gdb --args" name="template_grasp_planning_server" pkg="pr2_template_based_grasping"
       type="template_grasp_planning_server" respawn="false"
-      args="$(arg grasp_demonstrations_path) $(arg grasp_library_file) $(arg library_negatives) 
-    	  $(arg library_positives) $(arg log_data)" output="screen">
+      args="$(arg grasp_demonstrations_path) $(arg grasp_library_file) $(arg library_negatives)
+        $(arg library_positives) $(arg log_data)" output="screen">
       <rosparam file="$(find grasp_template_planning)/config/template_config_pr2.yaml" command="load"/>
-  </node>  
+  </node>
   </group>
-  
+
   <group unless="$(arg debug)">
-    <node name="template_grasp_planning_server" pkg="pr2_template_based_grasping" 
+    <node name="template_grasp_planning_server" pkg="pr2_template_based_grasping"
       type="template_grasp_planning_server" respawn="false"
-      args="$(arg grasp_demonstrations_path) $(arg grasp_library_file) $(arg library_negatives) 
-    	  $(arg library_positives) $(arg log_data)" output="screen">
+      args="$(arg grasp_demonstrations_path) $(arg grasp_library_file) $(arg library_negatives)
+            $(arg library_positives) $(arg log_data)" output="screen">
       <rosparam file="$(find grasp_template_planning)/config/template_config_pr2.yaml" command="load"/>
-  </node>  
+  </node>
   </group>
-  
 </launch>
