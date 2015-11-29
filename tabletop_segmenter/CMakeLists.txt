@@ -76,6 +76,8 @@ target_link_libraries(ping_tabletop_node
   ${DEPEND_LIBRARIES}
 )
 
+add_dependencies(ping_tabletop_node ${PROJECT_NAME}_gencpp)
+
 install(TARGETS marker_generator tabletop_segmentation ping_tabletop_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
