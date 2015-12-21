@@ -36,7 +36,7 @@ generate_messages(
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES marker_generator
+  LIBRARIES tabletop_marker_generator
   CATKIN_DEPENDS cv_bridge geometry_msgs image_geometry roscpp sensor_msgs tf visualization_msgs pcl_ros pcl_conversions
 )
 
@@ -52,11 +52,11 @@ set(DEPEND_LIBRARIES
   ${Boost_LIBRARIES}
   ${OpenCV_LIBRARIES})
 
-add_library(marker_generator
+add_library(tabletop_marker_generator
   src/marker_generator.cpp
 )
 
-target_link_libraries(marker_generator
+target_link_libraries(tabletop_marker_generator
   ${DEPEND_LIBRARIES})
 
 add_executable(tabletop_segmentation
@@ -66,11 +66,11 @@ add_executable(tabletop_segmentation
 
 add_dependencies(tabletop_segmentation
   tabletop_segmenter_generate_messages_cpp
-  marker_generator)
+  tabletop_marker_generator)
 
 target_link_libraries(tabletop_segmentation
   ${DEPEND_LIBRARIES}
-  marker_generator
+  tabletop_marker_generator
 )
 
 add_executable(ping_tabletop_node
@@ -83,7 +83,7 @@ target_link_libraries(ping_tabletop_node
 
 add_dependencies(ping_tabletop_node ${PROJECT_NAME}_gencpp)
 
-install(TARGETS marker_generator tabletop_segmentation ping_tabletop_node
+install(TARGETS tabletop_marker_generator tabletop_segmentation ping_tabletop_node
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
