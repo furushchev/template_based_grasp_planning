@@ -27,8 +27,15 @@ using namespace visualization_msgs;
 namespace grasp_template
 {
 
-const double TemplateHeightmap::TH_UNSET_TILE = numeric_limits<double>::max();
-const double TemplateHeightmap::TH_EMPTY_TILE = numeric_limits<double>::max() / 2;
+const unsigned int TemplateHeightmap::TH_DEFAULT_NUM_TILES_X = 30;
+const unsigned int TemplateHeightmap::TH_DEFAULT_NUM_TILES_Y = 30;
+const double TemplateHeightmap::TH_UNSET_TILE = 0, TemplateHeightmap::TH_EMPTY_TILE = 0;
+const double TemplateHeightmap::TH_DEPTH = 10; //means  -TH_DEPTH < values < TH_DEPTH
+const double TemplateHeightmap::TH_FOG_ZERO = -100; //all fog values are shifted around TH_FOG_ZERO
+const double TemplateHeightmap::TH_DONT_CARE_ZERO = -1000; //all dont_care values are shifted there
+const double TemplateHeightmap::TH_TABLE_ZERO = -10000; //all table values are shifted there
+const double TH_UNSET_TILE = numeric_limits<double>::max();
+const double TH_EMPTY_TILE = numeric_limits<double>::max() / 2;
 
 TemplateHeightmap::TemplateHeightmap(unsigned int num_tiles_x, unsigned int num_tiles_y, double map_length_x,
                                      double map_length_y)

@@ -37,13 +37,13 @@ public:
   TemplateHeightmap();
 
   /* constants */
-  static const unsigned int TH_DEFAULT_NUM_TILES_X = 30;
-  static const unsigned int TH_DEFAULT_NUM_TILES_Y = 30;
+  static const unsigned int TH_DEFAULT_NUM_TILES_X;
+  static const unsigned int TH_DEFAULT_NUM_TILES_Y;
   static const double TH_UNSET_TILE, TH_EMPTY_TILE;
-  static const double TH_DEPTH = 10; //means  -TH_DEPTH < values < TH_DEPTH
-  static const double TH_FOG_ZERO = -100; //all fog values are shifted around TH_FOG_ZERO
-  static const double TH_DONT_CARE_ZERO = -1000; //all dont_care values are shifted there
-  static const double TH_TABLE_ZERO = -10000; //all table values are shifted there
+  static const double TH_DEPTH; //means  -TH_DEPTH < values < TH_DEPTH
+  static const double TH_FOG_ZERO; //all fog values are shifted around TH_FOG_ZERO
+  static const double TH_DONT_CARE_ZERO; //all dont_care values are shifted there
+  static const double TH_TABLE_ZERO; //all table values are shifted there
 
   unsigned int getNumTilesX() const {return num_tiles_x_;};
   unsigned int getNumTilesY() const {return num_tiles_y_;};
@@ -85,6 +85,14 @@ private:
   void constructClass(unsigned int num_tiles_x, unsigned int num_tiles_y, double map_length_x, double map_length_y);
   void transformToGridCoordinates(double x, double y, unsigned int& ix, unsigned int& iy) const;
 };
-
+  /* constants */
+/*
+const unsigned int TemplateHeightmap::TH_DEFAULT_NUM_TILES_X;
+const unsigned int TemplateHeightmap::TH_DEFAULT_NUM_TILES_Y;
+const double TemplateHeightmap::TH_UNSET_TILE, TemplateHeightmap::TH_EMPTY_TILE;
+const double TemplateHeightmap::TH_FOG_ZERO; //all fog values are shifted around TH_FOG_ZERO
+const double TemplateHeightmap::TH_DONT_CARE_ZERO; //all dont_care values are shifted there
+const double TemplateHeightmap::TH_TABLE_ZERO; //all table values are shifted there
+*/
 } //namespace
 #endif /* TEMPLATE_HEIGHTMAP_H_ */
