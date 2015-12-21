@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   tf
   visualization_msgs
+  message_generation
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
@@ -30,7 +31,7 @@ generate_messages(
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES ${PROJECT_NAME}
-  CATKIN_DEPENDS geometry_msgs pcl_ros roscpp sensor_msgs tf visualization_msgs
+  CATKIN_DEPENDS geometry_msgs pcl_ros roscpp sensor_msgs tf visualization_msgs message_runtime
 )
 
 include_directories(
