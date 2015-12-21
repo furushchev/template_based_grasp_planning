@@ -56,12 +56,12 @@ GraspPlanningServer::GraspPlanningServer(ros::NodeHandle& nh, const string& demo
   planning_summary_service_ = nh_.advertiseService("pr2_template_grasp_planner_logging", &GraspPlanningServer::getLog,
                                                    this);
   ROS_INFO("Template grasp planner logging service is up.");
-
+  /*
   tabletop_srv_client_ = nh_.serviceClient<grasp_template_planning::TabletopObject>("tabletop_object_detection");
   ROS_INFO_STREAM("waiting service advatise " << tabletop_srv_client_.getService());
   tabletop_srv_client_.waitForExistence();
   ROS_INFO_STREAM("service " << tabletop_srv_client_.getService() << " is now available");
-
+  */
 }
 
 bool GraspPlanningServer::plan(object_manipulation_msgs::GraspPlanning::Request &req,
