@@ -19,7 +19,7 @@
 #include <grasp_template_planning/demonstration_parser.h>
 #include <grasp_template_planning/grasp_demo_library.h>
 #include <grasp_template_planning/GraspAnalysis.h>
-#include <grasp_template_planning/grasp_planning_params.h>.h>
+#include <grasp_template_planning/grasp_planning_params.h>
 
 using namespace std;
 using namespace grasp_template_planning;

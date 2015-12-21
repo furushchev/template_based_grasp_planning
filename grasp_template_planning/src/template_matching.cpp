@@ -41,6 +41,9 @@ TemplateMatching::TemplateMatching(GraspCreatorInterface const* grasp_creator, b
   lib_to_fail_.resize((*lib_grasps_).size());
 
   lib_match_handler_.clear();
+
+  ROS_WARN_STREAM("template_matching resize end");
+
   for (unsigned int i = 0; i < (*lib_grasps_).size(); i++)
   {
     const GraspAnalysis& lib_templt = (*lib_grasps_)[i];
@@ -52,6 +55,7 @@ TemplateMatching::TemplateMatching(GraspCreatorInterface const* grasp_creator, b
   lib_succ_qualities_.resize((*lib_grasps_).size());
   lib_succ_to_fail_.resize((*lib_grasps_).size());
   ROS_ASSERT((*lib_grasps_).size() == (*lib_successes_).size());
+  ROS_WARN_STREAM("assert clear: " << lib_grasps_->size() << " == " << lib_successes_->size());
   for (unsigned int i = 0; i < (*lib_successes_).size(); i++)
   {
 	  lib_succ_qualities_[i].resize((*lib_successes_)[i].size());
@@ -381,6 +385,8 @@ void TemplateMatching::computeLibQuality(unsigned int lib_index)
 void TemplateMatching::computeFailScore(unsigned int candidate, unsigned int lib_index, TemplateDissimilarity& score,
                                         int& fail_index) const
 {
+  ROS_INFO_STREAM("candidate: " << candidate << " / " << candidates_->size());
+  ROS_INFO_STREAM("lib_match_handler: " << lib_index << " / " << lib_match_handler_.size());
   GraspTemplate sample((*candidates_)[candidate]);
   lib_match_handler_[lib_index].applyDcMask(sample);
 
