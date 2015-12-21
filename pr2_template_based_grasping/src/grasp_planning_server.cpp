@@ -34,6 +34,9 @@ using namespace geometry_msgs;
 namespace pr2_template_based_grasping
 {
 
+const unsigned int GraspPlanningServer::PC_NUM_GRASP_OUTPUT = 100;
+
+
 GraspPlanningServer::GraspPlanningServer(ros::NodeHandle& nh, const string& demo_path,
     const string& lib_path, const string& failure_path, const string& success_path, const string& log_data_path) :
   nh_(nh), planning_pipe_(demo_path, lib_path, failure_path, success_path, log_data_path), visualizer_(false),

@@ -100,7 +100,9 @@ target_link_libraries(user_demonstration_recorder
   ${PROJECT_NAME}
   ${DEPEND_LIBRARIES})
 
-add_dependencies(user_demonstration_recorder ${PROJECT_NAME}_gencpp)
+add_dependencies(user_demonstration_recorder
+  ${PROJECT_NAME}_gencpp
+  ${PROJECT_NAME})
 
 add_executable(palm_marker
   config/palm_marker.cpp)
@@ -109,7 +111,9 @@ target_link_libraries(palm_marker
   ${PROJECT_NAME}
   ${DEPEND_LIBRARIES})
 
-add_dependencies(palm_marker ${PROJECT_NAME}_gencpp)
+add_dependencies(palm_marker
+  ${PROJECT_NAME}_gencpp
+  ${PROJECT_NAME})
 
 add_executable(generate_grasp_library
   src/generate_grasp_library.cpp)
@@ -118,7 +122,9 @@ target_link_libraries(generate_grasp_library
   ${PROJECT_NAME}
   ${DEPEND_LIBRARIES})
 
-add_dependencies(generate_grasp_library ${PROJECT_NAME}_gencpp)
+add_dependencies(generate_grasp_library
+  ${PROJECT_NAME}_gencpp
+  ${PROJECT_NAME})
 
 install(TARGETS ${PROJECT_NAME} palm_marker generate_grasp_library
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
