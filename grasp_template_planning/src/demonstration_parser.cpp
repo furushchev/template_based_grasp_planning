@@ -52,14 +52,27 @@ bool DemonstrationParser::analyzeGrasp(GraspAnalysis& analysis)
     return false;
   }
 
-  GraspDemoObjectMap::const_iterator oc_it = library_handler_->getObjects()->begin();
-  GraspDemoPoseMap::const_iterator gp_it = library_handler_->getGripperPoses()->begin();
-  GraspDemoPoseMap::const_iterator tp_it = library_handler_->getTablePoses()->begin();
   string demo_id = getDemoId();
-
-  if (oc_it == library_handler_->getObjects()->end() || gp_it == library_handler_-> getGripperPoses()->end()
-  /*|| js_it == library_handler_->getJointStates()->end()*/|| tp_it == library_handler_->getTablePoses()->end())
+  if (library_handler_->getObjects()->size() <= 0){
+    ROS_ERROR_STREAM("[analyzeGrasp] id: " << demo_id << " " <<
+                     "Object not found");
     return false;
+  }
+  GraspDemoObjectMap::const_iterator oc_it = library_handler_->getObjects()->begin();
+
+  if (library_handler_->getGripperPoses()->size() <= 0){
+    ROS_ERROR_STREAM("[analyzeGrasp] id: " << demo_id << " " <<
+                     "GripperPose not found");
+    return false;
+  }
+  GraspDemoPoseMap::const_iterator gp_it = library_handler_->getGripperPoses()->begin();
+
+  if (library_handler_->getTablePoses()->size() <= 0){
+    ROS_ERROR_STREAM("[analyzeGrasp] id: " << demo_id << " " <<
+                     "TablePose not found");
+    return false;
+  }
+  GraspDemoPoseMap::const_iterator tp_it = library_handler_->getTablePoses()->begin();
 
   geometry_msgs::PoseStamped viewpoint;
   viewpoint = library_handler_->getViewpointTransforms()->begin()->second;
@@ -123,6 +136,7 @@ bool DemonstrationParser::createAnalysisMsg(const GraspTemplate& templt,
     const DoubleVector& fingerpositions) const
 {
   /* set id */
+  ROS_INFO_STREAM("[createAnalysisMsg] demo_id_: " << demo_id_);
   analysis.demo_id = demo_id_;
   analysis.demo_filename = library_handler_->getDemoFilename();
 

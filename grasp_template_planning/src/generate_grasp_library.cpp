@@ -69,9 +69,12 @@ int main(int argc, char** argv)
     ROS_DEBUG_STREAM("Parsing demonstration...");
     DemonstrationParser analyzer(grasp_lib);
     GraspAnalysis ana;
-    analyzer.analyzeGrasp(ana);
+    if(!analyzer.analyzeGrasp(ana)) {
+      ROS_ERROR_STREAM("could not generate message");
+      return 1;
+    }
 
-    ROS_INFO_STREAM("Writing demonstration to library...");
+    ROS_INFO_STREAM("Writing demonstration to library..." << " " << ana.demo_id << " " << ana.demo_filename);
     grasp_lib.addAnalysisToLib(ana);
   }
 

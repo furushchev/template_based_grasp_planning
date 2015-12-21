@@ -42,11 +42,12 @@ TemplateMatching::TemplateMatching(GraspCreatorInterface const* grasp_creator, b
 
   lib_match_handler_.clear();
 
-  ROS_WARN_STREAM("template_matching resize end");
-
   for (unsigned int i = 0; i < (*lib_grasps_).size(); i++)
   {
     const GraspAnalysis& lib_templt = (*lib_grasps_)[i];
+    ROS_WARN_STREAM("grasp " << lib_templt.demo_filename << " or " << lib_grasps_->at(i).demo_filename << " => " <<
+                    (int)lib_templt.grasp_template.num_tiles_x << " x " <<
+                    (int)lib_templt.grasp_template.num_tiles_y);
     lib_match_handler_.push_back(DismatchMeasure(lib_templt.grasp_template, lib_templt.template_pose.pose,
                                                  lib_templt.gripper_pose.pose));
   }
@@ -64,6 +65,9 @@ TemplateMatching::TemplateMatching(GraspCreatorInterface const* grasp_creator, b
 	  for(unsigned int j = 0; j < (*lib_successes_)[i].size(); j++)
 	  {
 		  const GraspAnalysis& lib_succ_templt = (*lib_successes_)[i][j];
+                  ROS_WARN_STREAM("succ grasp " << lib_succ_templt.demo_filename << " => " <<
+                                  (int)lib_succ_templt.grasp_template.num_tiles_x << " x " <<
+                                  (int)lib_succ_templt.grasp_template.num_tiles_y);
 		  lib_succs_match_handler_[i].push_back(DismatchMeasure(lib_succ_templt.grasp_template, lib_succ_templt.template_pose.pose,
 				  lib_succ_templt.gripper_pose.pose));
 	  }

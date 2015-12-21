@@ -537,110 +537,103 @@ void PlanningPipeline::createGrasp(const GraspTemplate& templt,
   result.grasp_success = 0.5;
 }
 
-void PlanningPipeline::planGrasps(boost::shared_ptr<TemplateMatching>& pool) const
-{
-  ros::Time t_start = ros::Time::now();
+  void PlanningPipeline::planGrasps(boost::shared_ptr<TemplateMatching>& pool) const
+  {
+    ros::Time t_start = ros::Time::now();
 
-  boost::shared_ptr<const vector<GraspTemplate, Eigen::aligned_allocator<GraspTemplate> > > templts = extractTemplatesParallel();
+    boost::shared_ptr<const vector<GraspTemplate, Eigen::aligned_allocator<GraspTemplate> > > templts = extractTemplatesParallel();
 
-  ros::Time t_extract = ros::Time::now();
-  ros::Duration extract_duration = t_extract - t_start;
+    ros::Time t_extract = ros::Time::now();
+    ros::Duration extract_duration = t_extract - t_start;
 
-  boost::shared_ptr < vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > > lib_grasps;
-  lib_grasps.reset(new vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > ());
-  boost::shared_ptr < vector<vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > > > lib_failures, lib_succs;
-  lib_failures.reset(new vector<vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > > ());
-  lib_succs.reset(new vector<vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > > ());
+    boost::shared_ptr < vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > > lib_grasps;
+    lib_grasps.reset(new vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > ());
+    boost::shared_ptr < vector<vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > > > lib_failures, lib_succs;
+    lib_failures.reset(new vector<vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > > ());
+    lib_succs.reset(new vector<vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > > ());
 
-  ////DEBUG CODE
     int num_erased = 0;
     int num_not_erased = 0;
-    //    	1342889464.300883841
-  //  1343261576.160697464
-  //	ros::Time threashold_time(1343261576, 160697464);
-  ////DEBUG CODE
 
     *lib_grasps = *(library_->getAnalysisMsgs());
     ROS_INFO_STREAM("lib_grasps->size() = " << lib_grasps->size());
-    for (unsigned int i = 0; i < lib_grasps->size(); i++)
-    {
+    for (unsigned int i = 0; i < lib_grasps->size(); i++) {
       lib_failures->push_back(vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > ());
 
-    string failures_file = failures_path_;
-    failures_file.append(getRelatedFailureLib((*lib_grasps)[i]));
-    GraspDemoLibrary failure_lib("", failures_file);
-    failure_lib.loadLibrary();
+      string failures_file = failures_path_;
+      failures_file.append(getRelatedFailureLib((*lib_grasps)[i]));
+      GraspDemoLibrary failure_lib("", failures_file);
+      failure_lib.loadLibrary();
 
-    if (failure_lib.getAnalysisMsgs() != NULL)
-      (*lib_failures)[i] = *(failure_lib.getAnalysisMsgs());
+      if (failure_lib.getAnalysisMsgs() != NULL)
+        (*lib_failures)[i] = *(failure_lib.getAnalysisMsgs());
 
-    for(int fb_lib_id = (*lib_failures)[i].size() - 1; fb_lib_id >= 0; fb_lib_id--)
-    {
-    	if((*lib_failures)[i][fb_lib_id].grasp_template.heightmap.size()
-           != grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X * grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X)
+      for(int fb_lib_id = (*lib_failures)[i].size() - 1; fb_lib_id >= 0; fb_lib_id--)
         {
-          ROS_WARN_STREAM("template width is " << (*lib_failures)[i][fb_lib_id].grasp_template.heightmap.size() <<
-                          " != " << grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X *
-                          grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X);
+          if((*lib_failures)[i][fb_lib_id].grasp_template.heightmap.size()
+             != grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X * grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X)
+            {
+              ROS_WARN_STREAM("template width is " << (*lib_failures)[i][fb_lib_id].grasp_template.heightmap.size() <<
+                              " != " << grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X *
+                              grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X);
 
-          std::vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> >::iterator lib_iter = (*lib_failures)[i].begin();
-          lib_iter += fb_lib_id;
-          (*lib_failures)[i].erase(lib_iter);
+              std::vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> >::iterator lib_iter = (*lib_failures)[i].begin();
+              lib_iter += fb_lib_id;
+              (*lib_failures)[i].erase(lib_iter);
 
-          num_erased++;
-    	} else {
-          num_not_erased++;
-    	}
-    }
+              num_erased++;
+            } else {
+            num_not_erased++;
+          }
+        }
 
-    lib_succs->push_back(vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > ());
-    string succs_file = successes_path_;
-    succs_file.append(getRelatedSuccessLib((*lib_grasps)[i]));
-    GraspDemoLibrary succ_lib("", succs_file);
-    succ_lib.loadLibrary();
+      lib_succs->push_back(vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> > ());
+      string succs_file = successes_path_;
+      succs_file.append(getRelatedSuccessLib((*lib_grasps)[i]));
+      GraspDemoLibrary succ_lib("", succs_file);
+      succ_lib.loadLibrary();
 
-    if (succ_lib.getAnalysisMsgs() != NULL)
-      (*lib_succs)[i] = *(succ_lib.getAnalysisMsgs());
+      if (succ_lib.getAnalysisMsgs() != NULL)
+        (*lib_succs)[i] = *(succ_lib.getAnalysisMsgs());
 
-    for(int fb_lib_id = (*lib_succs)[i].size() - 1; fb_lib_id >= 0; fb_lib_id--)
-    {
-    	if((*lib_succs)[i][fb_lib_id].grasp_template.heightmap.size()
+      for(int fb_lib_id = (*lib_succs)[i].size() - 1; fb_lib_id >= 0; fb_lib_id--){
+        if((*lib_succs)[i][fb_lib_id].grasp_template.heightmap.size()
            != grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X * grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X)
-    	{
-          ROS_WARN_STREAM("template width is" << (*lib_succs)[i][fb_lib_id].grasp_template.heightmap.size() <<
-                          " != " << grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X *
-                          grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X);
+          {
+            ROS_WARN_STREAM("template width is" << (*lib_succs)[i][fb_lib_id].grasp_template.heightmap.size() <<
+                            " != " << grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X *
+                            grasp_template::TemplateHeightmap::TH_DEFAULT_NUM_TILES_X);
 
-          std::vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> >::iterator lib_iter = (*lib_succs)[i].begin();
-          lib_iter += fb_lib_id;
-          (*lib_succs)[i].erase(lib_iter);
+            std::vector<GraspAnalysis, Eigen::aligned_allocator<GraspAnalysis> >::iterator lib_iter = (*lib_succs)[i].begin();
+            lib_iter += fb_lib_id;
+            (*lib_succs)[i].erase(lib_iter);
 
-          num_erased++;
-    	} else {
+            num_erased++;
+          } else {
           num_not_erased++;
-    	}
+        }
+      }
     }
+
+    ROS_INFO_STREAM("Ignored " << num_erased <<
+                    " and kept " << num_not_erased);
+
+    ros::Time t_failure_map_creation = ros::Time::now();
+    ros::Duration failure_map_creation_duration = t_failure_map_creation - t_extract;
+
+    pool.reset(new TemplateMatching(this, templts, lib_grasps, lib_failures, lib_succs));
+    pool->create();
+
+    ros::Time t_pool_creation = ros::Time::now();
+    ros::Duration pool_creation_duration = t_pool_creation - t_failure_map_creation;
+
+    ROS_DEBUG_STREAM("grasp_template_planning::PlanningPipeline: "
+                     "Extracting templates took: " << extract_duration);
+    ROS_DEBUG_STREAM("grasp_template_planning::PlanningPipeline: "
+                     "Creating failure map took: " << failure_map_creation_duration);
+    ROS_DEBUG_STREAM("grasp_template_planning::PlanningPipeline: "
+                     "Generating grasps took: " << pool_creation_duration);
   }
-
-  ROS_INFO_STREAM("Ignored " << num_erased <<
-		  " and kept " << num_not_erased);
-
-  ros::Time t_failure_map_creation = ros::Time::now();
-  ros::Duration failure_map_creation_duration = t_failure_map_creation - t_extract;
-
-  pool.reset(new TemplateMatching(this, templts, lib_grasps, lib_failures, lib_succs));
-  pool->create();
-
-  ros::Time t_pool_creation = ros::Time::now();
-  ros::Duration pool_creation_duration = t_pool_creation - t_failure_map_creation;
-
-  ROS_DEBUG_STREAM("grasp_template_planning::PlanningPipeline: "
-      "Extracting templates took: " << extract_duration);
-  ROS_DEBUG_STREAM("grasp_template_planning::PlanningPipeline: "
-      "Creating failure map took: " << failure_map_creation_duration);
-  ROS_DEBUG_STREAM("grasp_template_planning::PlanningPipeline: "
-      "Generating grasps took: " << pool_creation_duration);
-}
 
 boost::shared_ptr<const vector<GraspTemplate, Eigen::aligned_allocator<GraspTemplate> > > PlanningPipeline::extractTemplatesParallel() const
 {
