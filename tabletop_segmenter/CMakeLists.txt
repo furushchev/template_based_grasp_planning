@@ -56,12 +56,17 @@ add_library(marker_generator
   src/marker_generator.cpp
 )
 
+target_link_libraries(marker_generator
+  ${DEPEND_LIBRARIES})
+
 add_executable(tabletop_segmentation
   src/tabletop_segmentation.cpp
   src/utilities.cpp
 )
 
-add_dependencies(tabletop_segmentation tabletop_segmenter_generate_messages_cpp)
+add_dependencies(tabletop_segmentation
+  tabletop_segmenter_generate_messages_cpp
+  marker_generator)
 
 target_link_libraries(tabletop_segmentation
   ${DEPEND_LIBRARIES}
