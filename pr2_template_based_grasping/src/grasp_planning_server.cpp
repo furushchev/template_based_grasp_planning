@@ -66,7 +66,7 @@ bool GraspPlanningServer::plan(object_manipulation_msgs::GraspPlanning::Request 
 {
   ros::Time t_start = ros::Time::now();
   boost::mutex::scoped_lock lock(mutex_);
-
+/*
   if (req.target.cluster.points.size() == 0 || req.target.region.roi_box_pose.pose.orientation.x == 0.0) {
     grasp_template_planning::TabletopObject srv;
     if(!tabletop_srv_client_.call(srv)){
@@ -84,6 +84,9 @@ bool GraspPlanningServer::plan(object_manipulation_msgs::GraspPlanning::Request 
   if (req.target.region.roi_box_pose.pose.orientation.x != 0.0) {
     table_frame_ = req.target.region.roi_box_pose.pose;
   }
+*/
+  sensor_msgs::convertPointCloudToPointCloud2(req.target.cluster, target_cloud_);
+  table_frame_ = req.target.region.roi_box_pose.pose;
   Pose table = table_frame_;
   planning_pipe_.initialize(target_cloud_, table);
 
