@@ -20,6 +20,7 @@
 
 #include <rosbag/bag.h>
 #include <rosbag/view.h>
+#include <sensor_msgs/point_cloud_conversion.h>
 #include <grasp_template_planning/grasp_demo_library.h>
 
 using namespace std;
@@ -126,12 +127,14 @@ bool GraspDemoLibrary::loadDemonstration(const string& filename)
 
     BOOST_FOREACH(rosbag::MessageInstance const msg_instance, view)
           {
-
+            ROS_INFO_STREAM("analyzing " << msg_instance.getTopic() << "[" << msg_instance.getDataType() << "](" << msg_instance.size() << ")");
             /* grasp event */
             SimpleLabel::ConstPtr ge_msg = msg_instance.instantiate<SimpleLabel> ();
+            //            ROS_INFO_STREAM("ge_msg " << ge_msg->event_label);
             if (ge_msg != NULL)
             {
-              events_->insert(make_pair(ge_msg->event_label, make_pair(msg_instance.getTime(), *ge_msg)));
+              ROS_INFO_STREAM("interpreted as simple label");
+              events_->insert(GraspDemoEventMap::value_type(ge_msg->event_label, make_pair(msg_instance.getTime(), *ge_msg)));
               continue;
             }
 
@@ -139,6 +142,7 @@ bool GraspDemoLibrary::loadDemonstration(const string& filename)
             DoubleVector::ConstPtr fings_msg = msg_instance.instantiate<DoubleVector> ();
             if (fings_msg != NULL)
             {
+              ROS_INFO_STREAM("interpreted as fingerposition");
               fingerpositions_->insert(make_pair(msg_instance.getTime(), *fings_msg));
               continue;
             }
@@ -147,10 +151,20 @@ bool GraspDemoLibrary::loadDemonstration(const string& filename)
             if (msg_instance.getTopic() == topicGraspDemoObjectCluster() || ("/" + msg_instance.getTopic()
                 == topicGraspDemoObjectCluster()))
             {
-              sensor_msgs::PointCloud2::ConstPtr pc_msg = msg_instance.instantiate<sensor_msgs::PointCloud2> ();
-              if (pc_msg != NULL)
+              ROS_INFO_STREAM("interpreted as pointcloud");
+              sensor_msgs::PointCloud2 pc2_msg;
+              if (msg_instance.getDataType() == "sensor_msgs/PointCloud") {
+                ROS_INFO_STREAM("converting pc1 -> pc2");
+                sensor_msgs::PointCloud::ConstPtr pc1_msg = msg_instance.instantiate<sensor_msgs::PointCloud>();
+                sensor_msgs::convertPointCloudToPointCloud2(*pc1_msg, pc2_msg);
+              } else {
+                sensor_msgs::PointCloud2::ConstPtr pc_msg = msg_instance.instantiate<sensor_msgs::PointCloud2> ();
+                pc2_msg = *pc_msg;
+              }
+
+              if (pc2_msg.data.size() > 0)
               {
-                objects_->insert(make_pair(msg_instance.getTime(), *pc_msg));
+                objects_->insert(make_pair(msg_instance.getTime(), pc2_msg));
                 continue;
               }
             }
@@ -159,7 +173,7 @@ bool GraspDemoLibrary::loadDemonstration(const string& filename)
             if (msg_instance.getTopic() == topicGraspDemoTable() || ("/" + msg_instance.getTopic()
                 == topicGraspDemoTable()))
             {
-
+              ROS_INFO_STREAM("interpreted as grasp demo table");
               geometry_msgs::PoseStamped::ConstPtr tp_msg = msg_instance.instantiate<geometry_msgs::PoseStamped> ();
               if (tp_msg != NULL)
               {
@@ -172,6 +186,7 @@ bool GraspDemoLibrary::loadDemonstration(const string& filename)
             geometry_msgs::PoseStamped::ConstPtr gp_msg = msg_instance.instantiate<geometry_msgs::PoseStamped> ();
             if (gp_msg != NULL)
             {
+              ROS_INFO_STREAM("interpreted as posestamped");
               string tpic = msg_instance.getTopic();
 
               if (tpic.compare(topicGraspDemoGripperPose().c_str()) == 0)
@@ -189,7 +204,7 @@ bool GraspDemoLibrary::loadDemonstration(const string& filename)
   }
   catch (rosbag::BagIOException ex)
   {
-    ROS_DEBUG("grasp_template_planning::GraspDemoLibrary: Problem when reading from grasp "
+    ROS_ERROR("grasp_template_planning::GraspDemoLibrary: Problem when reading from grasp "
         "demonstration file >%s< : %s.", bag_file_path_.c_str(), ex.what());
     return false;
   }

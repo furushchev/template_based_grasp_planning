@@ -19,7 +19,7 @@
 #include <grasp_template_planning/demonstration_parser.h>
 #include <grasp_template_planning/grasp_demo_library.h>
 #include <grasp_template_planning/GraspAnalysis.h>
-#include <grasp_template_planning/grasp_planning_params.h>.h>
+#include <grasp_template_planning/grasp_planning_params.h>
 
 using namespace std;
 using namespace grasp_template_planning;
@@ -36,6 +36,10 @@ int main(int argc, char** argv)
   ros::init(argc, argv, "generate_grasp_library");
   ros::NodeHandle n;
 
+  ROS_INFO_STREAM("Loading Grasp Demo Library:");
+  ROS_INFO_STREAM("demonstration_path: " << argv[1]);
+  ROS_INFO_STREAM("library_path: " << argv[2]);
+
   GraspDemoLibrary grasp_lib(argv[1], argv[2]);
 
   vector<string> demo_files;
@@ -44,29 +48,33 @@ int main(int argc, char** argv)
     grasp_lib.getAllDemonstrationFilenames(demo_files);
     grasp_lib.removeLibraryFileFromFilesystem();
 
-    ROS_DEBUG("Following grasp demonstrations will be parsed to library: ");
+    ROS_INFO("Following grasp demonstrations will be parsed to library: ");
     for (vector<string>::const_iterator it = demo_files.begin();
         it != demo_files.end(); it++)
     {
-      ROS_DEBUG_STREAM(*it << endl);
+      ROS_INFO_STREAM(*it);
     }
   }
   else
   {
+    ROS_INFO_STREAM("demo_file_name: " << argv[3]);
     demo_files.push_back(argv[3]);
   }
 
   for (vector<string>::const_iterator it = demo_files.begin(); it != demo_files.end(); it++)
   {
-    ROS_DEBUG_STREAM("Loading demonstration file" << it->c_str());
+    ROS_INFO_STREAM("Loading demonstration file" << it->c_str());
     grasp_lib.loadDemonstration(it->c_str());
 
     ROS_DEBUG_STREAM("Parsing demonstration...");
     DemonstrationParser analyzer(grasp_lib);
     GraspAnalysis ana;
-    analyzer.analyzeGrasp(ana);
+    if(!analyzer.analyzeGrasp(ana)) {
+      ROS_ERROR_STREAM("could not generate message");
+      return 1;
+    }
 
-    ROS_DEBUG_STREAM("Writing demonstration to library...");
+    ROS_INFO_STREAM("Writing demonstration to library..." << " " << ana.demo_id << " " << ana.demo_filename);
     grasp_lib.addAnalysisToLib(ana);
   }
 

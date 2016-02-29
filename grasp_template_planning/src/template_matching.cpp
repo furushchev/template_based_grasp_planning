@@ -41,9 +41,17 @@ TemplateMatching::TemplateMatching(GraspCreatorInterface const* grasp_creator, b
   lib_to_fail_.resize((*lib_grasps_).size());
 
   lib_match_handler_.clear();
+
   for (unsigned int i = 0; i < (*lib_grasps_).size(); i++)
   {
     const GraspAnalysis& lib_templt = (*lib_grasps_)[i];
+    if ((int)lib_templt.grasp_template.num_tiles_x <= 0 ||
+        (int)lib_templt.grasp_template.num_tiles_y <= 0) {
+      ROS_ERROR_STREAM("grasp " << lib_templt.demo_filename << " or " << lib_grasps_->at(i).demo_filename << " => " <<
+                       (int)lib_templt.grasp_template.num_tiles_x << " x " <<
+                       (int)lib_templt.grasp_template.num_tiles_y);
+      return;
+    }
     lib_match_handler_.push_back(DismatchMeasure(lib_templt.grasp_template, lib_templt.template_pose.pose,
                                                  lib_templt.gripper_pose.pose));
   }
@@ -52,6 +60,7 @@ TemplateMatching::TemplateMatching(GraspCreatorInterface const* grasp_creator, b
   lib_succ_qualities_.resize((*lib_grasps_).size());
   lib_succ_to_fail_.resize((*lib_grasps_).size());
   ROS_ASSERT((*lib_grasps_).size() == (*lib_successes_).size());
+  ROS_WARN_STREAM("assert clear: " << lib_grasps_->size() << " == " << lib_successes_->size());
   for (unsigned int i = 0; i < (*lib_successes_).size(); i++)
   {
 	  lib_succ_qualities_[i].resize((*lib_successes_)[i].size());
@@ -60,6 +69,9 @@ TemplateMatching::TemplateMatching(GraspCreatorInterface const* grasp_creator, b
 	  for(unsigned int j = 0; j < (*lib_successes_)[i].size(); j++)
 	  {
 		  const GraspAnalysis& lib_succ_templt = (*lib_successes_)[i][j];
+                  ROS_WARN_STREAM("succ grasp " << lib_succ_templt.demo_filename << " => " <<
+                                  (int)lib_succ_templt.grasp_template.num_tiles_x << " x " <<
+                                  (int)lib_succ_templt.grasp_template.num_tiles_y);
 		  lib_succs_match_handler_[i].push_back(DismatchMeasure(lib_succ_templt.grasp_template, lib_succ_templt.template_pose.pose,
 				  lib_succ_templt.gripper_pose.pose));
 	  }
@@ -381,6 +393,8 @@ void TemplateMatching::computeLibQuality(unsigned int lib_index)
 void TemplateMatching::computeFailScore(unsigned int candidate, unsigned int lib_index, TemplateDissimilarity& score,
                                         int& fail_index) const
 {
+  ROS_DEBUG_STREAM("candidate: " << candidate << " / " << candidates_->size());
+  ROS_DEBUG_STREAM("lib_match_handler: " << lib_index << " / " << lib_match_handler_.size());
   GraspTemplate sample((*candidates_)[candidate]);
   lib_match_handler_[lib_index].applyDcMask(sample);
 

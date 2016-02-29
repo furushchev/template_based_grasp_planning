@@ -71,7 +71,7 @@ private:
   ros::ServiceServer vis_service_;
   ros::ServiceServer planning_feedback_service_;
   ros::ServiceServer planning_summary_service_;
-  static const unsigned int PC_NUM_GRASP_OUTPUT = 100;
+  static const unsigned int PC_NUM_GRASP_OUTPUT;
 
   void convertGrasps(const grasp_template_planning::TemplateMatching& pool,
                      std::vector<object_manipulation_msgs::Grasp>& goals);
